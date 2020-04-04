@@ -1,0 +1,14 @@
+{
+  "manifest_version": 2,
+  "name": "Show Goodreads book score",
+  "version": "0.11",
+  "description": "Shows custom score for goodreads books",
+  "author": "Mohamed Oun",
+  "content_scripts": [
+    {
+      "matches": ["*://*.goodreads.com/book/show/*"],
+      "js": ["content-script.js"],
+      "run_at": "document_end"
+    }
+  ]
+}
