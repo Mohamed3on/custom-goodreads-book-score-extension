@@ -30,11 +30,12 @@ if (document.getElementById('rating_details')) {
 } else {
   const fiveStarRatings = document
     .querySelectorAll('div.RatingsHistogram__labelTotal')[0]
-    .textContent.replace(/,/g, '');
-
+    .textContent.match(/^[^\(]+/g)[0]
+    .replace(/,|\s/g, '');
   const oneStarRatings = document
     .querySelectorAll('div.RatingsHistogram__labelTotal')[4]
-    .textContent.replace(/,/g, '');
+    .textContent.match(/^[^\(]+/g)[0]
+    .replace(/,|\s/g, '');
 
   const ratingsElement = document.querySelector(
     '.RatingStatistics__meta > [data-testid="ratingsCount"]'
