@@ -7,6 +7,15 @@ const addCommas = (x) => {
   return x.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
+const appendScore = (itemToAppendTo, scoreAbsolute, ratio) => {
+  const calculatedScore = Math.round(scoreAbsolute * ratio);
+
+  const ScoreElement = document.createElement('h1');
+  ScoreElement.innerHTML = ` ${Math.round(ratio * 100)}% (${addCommas(String(calculatedScore))})`;
+
+  ScoreElement.appendAfter(itemToAppendTo);
+};
+
 if (document.getElementById('rating_details')) {
   document.getElementById('rating_details').click();
   const fiveStarRatingsElement = document.querySelectorAll('td[width="90"]')[0].textContent;
@@ -19,14 +28,10 @@ if (document.getElementById('rating_details')) {
   const oneStarRatingsPercentage = oneStarRatingsElement.match(/\d*(?=%)/);
   const oneStarRatingsAbsolute = oneStarRatingsElement.match(/(?!\()\d+(?=\))/);
 
-  const scorePercentage = fiveStarRatingsPercentage - oneStarRatingsPercentage;
+  const ratio = (fiveStarRatingsPercentage - oneStarRatingsPercentage) / 100;
   const scoreAbsolute = fiveStarRatingsAbsolute - oneStarRatingsAbsolute;
 
-  const ScoreElement = document.createElement('h1');
-  ScoreElement.innerHTML = ` ${scorePercentage}% (${addCommas(String(scoreAbsolute))})`;
-
-  const Headline = document.getElementById('bookTitle');
-  ScoreElement.appendAfter(Headline);
+  appendScore((Headline = document.getElementById('bookTitle')), scoreAbsolute, ratio);
 } else {
   const fiveStarRatings = document
     .querySelectorAll('div.RatingsHistogram__labelTotal')[0]
@@ -45,11 +50,8 @@ if (document.getElementById('rating_details')) {
   const totalRatings = parseFloat(ratingsCount.replace(/,/g, ''));
 
   const scoreAbsolute = fiveStarRatings - oneStarRatings;
-  const scorePercentage = (scoreAbsolute / totalRatings).toFixed(2) * 100;
 
-  const ScoreElement = document.createElement('h1');
-  ScoreElement.innerHTML = ` ${scorePercentage}% (${addCommas(String(scoreAbsolute))})`;
+  const ratio = scoreAbsolute / totalRatings;
 
-  const Headline = document.getElementsByClassName('Text Text__title1')?.[0];
-  ScoreElement.appendAfter(Headline);
+  appendScore(document.getElementsByClassName('Text Text__title1')?.[0], scoreAbsolute, ratio);
 }
