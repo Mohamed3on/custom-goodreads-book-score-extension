@@ -11,7 +11,7 @@ const appendScore = (itemToAppendTo, scoreAbsolute, ratio) => {
   const calculatedScore = Math.round(scoreAbsolute * ratio);
 
   const ScoreElement = document.createElement('h1');
-  ScoreElement.innerHTML = ` ${Math.round(ratio * 100)}% (${addCommas(String(calculatedScore))})`;
+  ScoreElement.innerHTML = `${addCommas(String(calculatedScore))} (${Math.round(ratio * 100)}%)`;
 
   ScoreElement.appendAfter(itemToAppendTo);
 };
