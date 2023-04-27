@@ -7,32 +7,14 @@ const addCommas = (x) => {
   return x.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
-const appendScore = (itemToAppendTo, scoreAbsolute, ratio) => {
-  const calculatedScore = Math.round(scoreAbsolute * ratio);
-
+const appendScore = (itemToAppendTo, score, ratio) => {
   const ScoreElement = document.createElement('h1');
-  ScoreElement.innerHTML = `${addCommas(String(calculatedScore))} (${Math.round(ratio * 100)}%)`;
+  ScoreElement.innerHTML = `${addCommas(String(score))} (${Math.round(ratio * 100)}%)`;
 
   ScoreElement.appendAfter(itemToAppendTo);
 };
 
-if (document.getElementById('rating_details')) {
-  document.getElementById('rating_details').click();
-  const fiveStarRatingsElement = document.querySelectorAll('td[width="90"]')[0].textContent;
-  const oneStarRatingsElement = document.querySelectorAll('td[width="90"]')[4].textContent;
-
-  document.getElementsByClassName('close')[0].click();
-  const fiveStarRatingsPercentage = fiveStarRatingsElement.match(/\d*(?=%)/);
-  const fiveStarRatingsAbsolute = fiveStarRatingsElement.match(/(?!\()\d+(?=\))/);
-
-  const oneStarRatingsPercentage = oneStarRatingsElement.match(/\d*(?=%)/);
-  const oneStarRatingsAbsolute = oneStarRatingsElement.match(/(?!\()\d+(?=\))/);
-
-  const ratio = (fiveStarRatingsPercentage - oneStarRatingsPercentage) / 100;
-  const scoreAbsolute = fiveStarRatingsAbsolute - oneStarRatingsAbsolute;
-
-  appendScore((Headline = document.getElementById('bookTitle')), scoreAbsolute, ratio);
-} else {
+const getScoreData = () => {
   const fiveStarRatings = document
     .querySelectorAll('div.RatingsHistogram__labelTotal')[0]
     .textContent.match(/^[^\(]+/g)[0]
@@ -53,5 +35,11 @@ if (document.getElementById('rating_details')) {
 
   const ratio = scoreAbsolute / totalRatings;
 
-  appendScore(document.getElementsByClassName('Text Text__title1')?.[0], scoreAbsolute, ratio);
-}
+  const score = Math.round(scoreAbsolute * ratio);
+
+  return { score, ratio };
+};
+
+const { score, ratio } = getScoreData();
+
+appendScore(document.getElementsByClassName('Text Text__title1')?.[0], score, ratio);
