@@ -1,45 +1,61 @@
-(Element.prototype.appendAfter = function (element) {
-  element.parentNode.insertBefore(this, element.nextSibling);
-}),
-  false;
+(() => {
+  const addCommas = (x) => x.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-const addCommas = (x) => {
-  return x.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-};
+  const getScoreData = () => {
+    const fiveStarRatings = parseInt(
+      document.querySelector('[data-testid="labelTotal-5"]')
+        .textContent.match(/^[^\(]+/)[0]
+        .replace(/,|\s/g, ''),
+      10
+    );
+    const oneStarRatings = parseInt(
+      document.querySelector('[data-testid="labelTotal-1"]')
+        .textContent.match(/^[^\(]+/)[0]
+        .replace(/,|\s/g, ''),
+      10
+    );
+    const totalRatings = parseInt(
+      document.querySelector('[data-testid="ratingsCount"]')
+        .textContent.match(/^(\d+|\d{1,3}(,\d{3})*)(\.\d+)?(?=\s+ratings)/)[0]
+        .replace(/,/g, ''),
+      10
+    );
 
-const appendScore = (itemToAppendTo, score, ratio) => {
-  const ScoreElement = document.createElement('h1');
-  ScoreElement.innerHTML = `${addCommas(String(score))} (${Math.round(ratio * 100)}%)`;
+    const scoreAbsolute = fiveStarRatings - oneStarRatings;
+    const ratio = scoreAbsolute / totalRatings;
+    const score = Math.round(scoreAbsolute * ratio);
 
-  ScoreElement.appendAfter(itemToAppendTo);
-};
+    return { score, ratio };
+  };
 
-const getScoreData = () => {
-  const fiveStarRatings = document
-    .querySelectorAll('div.RatingsHistogram__labelTotal')[0]
-    .textContent.match(/^[^\(]+/g)[0]
-    .replace(/,|\s/g, '');
-  const oneStarRatings = document
-    .querySelectorAll('div.RatingsHistogram__labelTotal')[4]
-    .textContent.match(/^[^\(]+/g)[0]
-    .replace(/,|\s/g, '');
+  const appendScore = (bookTitle) => {
+    const { score, ratio } = getScoreData();
+    const scoreElement = document.createElement('h1');
+    scoreElement.textContent = `${addCommas(String(score))} (${Math.round(ratio * 100)}%)`;
+    bookTitle.parentNode.insertBefore(scoreElement, bookTitle.nextSibling);
+  };
 
-  const ratingsElement = document.querySelector(
-    '.RatingStatistics__meta > [data-testid="ratingsCount"]'
-  ).textContent;
+  const init = () => {
+    const bookTitle = document.querySelector('[data-testid="bookTitle"]');
+    const labelTotal5 = document.querySelector('[data-testid="labelTotal-5"]');
 
-  const ratingsCount = ratingsElement.match(/^(\d+|\d{1,3}(,\d{3})*)(\.\d+)?(?=\s+ratings)/g)?.[0];
-  const totalRatings = parseFloat(ratingsCount.replace(/,/g, ''));
+    if (bookTitle && labelTotal5) {
+      appendScore(bookTitle);
+      return;
+    }
 
-  const scoreAbsolute = fiveStarRatings - oneStarRatings;
+    const observer = new MutationObserver(() => {
+      const bookTitle = document.querySelector('[data-testid="bookTitle"]');
+      const labelTotal5 = document.querySelector('[data-testid="labelTotal-5"]');
 
-  const ratio = scoreAbsolute / totalRatings;
+      if (bookTitle && labelTotal5) {
+        appendScore(bookTitle);
+        observer.disconnect();
+      }
+    });
 
-  const score = Math.round(scoreAbsolute * ratio);
+    observer.observe(document.body, { childList: true, subtree: true });
+  };
 
-  return { score, ratio };
-};
-
-const { score, ratio } = getScoreData();
-
-appendScore(document.getElementsByClassName('Text Text__title1')?.[0], score, ratio);
+  init();
+})();
